@@ -126,18 +126,13 @@ class Blockchain {
           try {
           
           	let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
-			let mtime = parseInt(message.split(':')[1]);
+            let elapsed = currentTime - parseInt(message.split(':')[1];
             
-			if ((currentTime - mtime) <= 5) {
+			if (elapsed < 5) {
               
-            	let verified = bitcoinMessage.verify(message, address, signature);
-              
-				if (verified) {
-                	this._addBlock(star);
-                	resolve(this.chain[this.height]);
-                } else {
-                	reject("Message not verified");
-                }
+              	bitcoinMessage.verify(message, address, signature);
+              	this._addBlock(star);
+              	resolve(this.chain[this.height]);
             } else {
             	reject('Elapsed time greater than 5 minutes');
             }
@@ -157,7 +152,11 @@ class Blockchain {
     getBlockByHash(hash) {
         let self = this;
         return new Promise((resolve, reject) => {
-           
+          try {
+          		self.chain.filter(block => block.hash === hash)
+          } catch(err) {
+          		reject(err.message);
+          }
         });
     }
 
@@ -184,11 +183,14 @@ class Blockchain {
      * Remember the star should be returned decoded.
      * @param {*} address 
      */
-    getStarsByWalletAddress (address) {
+    getStarsByWalletAddress(address) {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            
+            stars = self.chain.filter(star =>
+				address === star.owner;
+			);
+          	resolve(stars);
         });
     }
 
@@ -202,7 +204,16 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            
+          self.chain.forEach((block,h,arr) => {
+          		block.validate().catch(
+            		(error)=> {errorLog.push([block.height,error])};
+            	)
+				if (arr[h-1].hash !== block.previousHash){
+                	errorLog.push([block.height,'Chain broken, prev hash does not match']);
+                }
+          		
+          });	
+          resolve(errorLog);
         });
     }
 

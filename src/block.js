@@ -40,14 +40,16 @@ class Block {
         let self = this;
         return new Promise((resolve, reject) => {
             // Save in auxiliary variable the current block hash
-          var chash = SHA256(self.hash);
-          if (chash === self.hash) {
-              resolve(chash);
-          } else {
-              reject('Hash does not match');
-          }                             
+          var chash = self.hash;
+                                       
             // Recalculate the hash of the Block
+          let h = SHA256(self.body)
             // Comparing if the hashes changed
+          if (h === chash){
+          		resolve("Block valid");
+          } else {
+          		reject("Block is not valid");
+          }
             // Returning the Block is not valid
             
             // Returning the Block is valid
@@ -80,7 +82,16 @@ class Block {
         // Resolve with the data if the object isn't the Genesis block
 
     }
-
+	validatePreviousHash(pHash){
+    	let self = this;
+      	return new Promise((resolve,reject) =>{
+        	if(self.hash == pHash){
+            	resolve(true);
+            } else {
+            	reject(false);
+            }
+        })
+    }
 }
 
 module.exports.Block = Block;                    // Exposing the Block class as a module
